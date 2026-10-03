@@ -9,22 +9,32 @@ function App() {
     const [url, setUrl] = useState("https://pokeapi.co/api/v2/pokemon");
     const [nextpage, setNextPage] = useState(null);
     const [previouspage, setPreviousPage] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
+
 
     useEffect(() => {
+        const controller = new AbortController();
         async function fetchPokemon() {
+            setLoading(true);
             try {
-                const result = await axios.get(url);
+                const result = await axios.get(url, { signal: controller.signal });
                 console.log(result);
                 setPokemons(result.data.results);
                 setNextPage(result.data.next);
                 setPreviousPage(result.data.previous);
             } catch (e) {
                 console.error(e);
+                setError(true);
             }
+            setLoading(false);
         }
         fetchPokemon();
-    },[url] )
 
+        return () => {
+            controller.abort();
+        }
+    },[url] )
 
 
   return (
@@ -35,12 +45,16 @@ function App() {
         <section className="buttons-container">
             <button disabled={!previouspage} onClick={() => setUrl(previouspage)}>Previous</button>
             <button disabled={!nextpage} onClick={() => setUrl(nextpage)}>Next</button>
-                    </section>
-    <section className="pokemon-cards-container">
+        </section>
+        <section>
+            {loading && <p>Bezig met laden...</p>}
+            {error && <p>Er ging iets mis bij het ophalen van de data</p>}
+        </section>
+        <section className="pokemon-cards-container">
         {pokemons.map((pokemon) => {
             return <Card key={pokemon.name} name={pokemon.name} />})
         }
-    </section>
+        </section>
     </main>
   )
 }
