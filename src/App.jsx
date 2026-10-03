@@ -1,38 +1,47 @@
 import './App.css'
-import {useEffect, useState} from "react";
 import axios from "axios";
+import {useEffect, useState} from "react";
+import Card from './components/card/card';
 import Logo from './assets/Logo.png';
 
 function App() {
-        const [pokemon, setPokemon] = useState([]);
+    const [pokemons, setPokemons] = useState([]);
+    const [url, setUrl] = useState("https://pokeapi.co/api/v2/pokemon");
+    const [nextpage, setNextPage] = useState(null);
+    const [previouspage, setPreviousPage] = useState(null);
 
-        useEffect(() => {
-            async function fetchPokemon() {
-                try {
-                    const result = await axios.get("https://pokeapi.co/api/v2/pokemon/39/");
-                    console.log(result);
-                    setPokemon(result.data);
-                } catch (e) {
-                    console.error(e);
-                }
+    useEffect(() => {
+        async function fetchPokemon() {
+            try {
+                const result = await axios.get(url);
+                console.log(result);
+                setPokemons(result.data.results);
+                setNextPage(result.data.next);
+                setPreviousPage(result.data.previous);
+            } catch (e) {
+                console.error(e);
             }
-            fetchPokemon();
-        },[] )
-
+        }
+        fetchPokemon();
+    },[url] )
 
 
 
   return (
-    <body>
-    <section>
-        <img src={Logo} className="pokemon-logo" />
+    <main>
+        <section className="pokemon-logo-container">
+            <img src={Logo} className="pokemon-logo" alt="Pokémon logo" />
+        </section>
+        <section className="buttons-container">
+            <button disabled={!previouspage} onClick={() => setUrl(previouspage)}>Previous</button>
+            <button disabled={!nextpage} onClick={() => setUrl(nextpage)}>Next</button>
+                    </section>
+    <section className="pokemon-cards-container">
+        {pokemons.map((pokemon) => {
+            return <Card key={pokemon.name} name={pokemon.name} />})
+        }
     </section>
-    <section>
-        <div>
-            <h1>Dit is pokemon:  {pokemon.name}</h1>
-        </div>
-    </section>
-    </body>
+    </main>
   )
 }
 
