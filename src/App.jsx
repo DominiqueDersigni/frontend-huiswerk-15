@@ -1,5 +1,5 @@
 import './App.css'
-import axios from "axios";
+import axios frgit om "axios";
 import {useEffect, useState} from "react";
 import Card from './components/card/card';
 import Logo from './assets/Logo.png';
